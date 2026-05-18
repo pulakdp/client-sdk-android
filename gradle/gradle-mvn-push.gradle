@@ -47,6 +47,14 @@ def getRepositoryPassword() {
     return hasProperty('nexusPassword') ? nexusPassword : ""
 }
 
+def getGithubPackagesUrl() {
+    return findProperty('GITHUB_PACKAGES_URL') ?: ""
+}
+
+def getGithubToken() {
+    return findProperty('githubToken') ?: ""
+}
+
 boolean getReleaseSigningEnabled() {
     return hasProperty('RELEASE_SIGNING_ENABLED') ? RELEASE_SIGNING_ENABLED.toBoolean() : true
 }
@@ -90,6 +98,17 @@ afterEvaluate { project ->
                 credentials(PasswordCredentials) {
                     username = getRepositoryUsername()
                     password = getRepositoryPassword()
+                }
+            }
+            maven {
+                name = "githubPackages"
+                url = uri(getGithubPackagesUrl())
+                credentials(HttpHeaderCredentials) {
+                    name = "Authorization"
+                    value = "Bearer ${getGithubToken()}"
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
                 }
             }
         }
